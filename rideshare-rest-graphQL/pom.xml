@@ -76,12 +76,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>edu.rutmiit.demo</groupId>
-			<artifactId>books-api-contract</artifactId>
-			<version>1.0</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.example.rideshare</groupId>
 			<artifactId>rideshare-events-contract</artifactId>
 			<version>1.0</version>

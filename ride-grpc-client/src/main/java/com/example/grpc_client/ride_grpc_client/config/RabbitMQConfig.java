@@ -77,10 +77,6 @@ public class RabbitMQConfig {
         return QueueBuilder.durable(ENRICHMENT_DLQ).build();
     }
 
-    /**
-     * Важный момент: мы НЕ используем всеядный ключ "#".
-     * Наш сервис занимается только поездками, поэтому подписываемся строго на "ride.created".
-     */
     @Bean
     public Binding enrichmentBinding(Queue enrichmentQueue, TopicExchange eventsExchange) {
         return BindingBuilder
@@ -90,7 +86,7 @@ public class RabbitMQConfig {
     }
 
     /**
-     * Привязка для очереди "мертвых" сообщений.
+     * Привязка для очереди мертвых сообщений.
      */
     @Bean
     public Binding enrichmentDlqBinding(Queue enrichmentDlq, DirectExchange deadLetterExchange) {

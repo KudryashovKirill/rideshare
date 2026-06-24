@@ -1,6 +1,8 @@
 package com.example.rideshare_rest.exception;
+
 import com.example.rideshare_api_contract.dto.ErrorResponse;
 import com.example.rideshare_api_contract.exceptions.NoFreeSeatsException;
+import com.example.rideshare_api_contract.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +41,23 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(
+            ResourceNotFoundException ex,
+            HttpServletRequest req) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(
+                        HttpStatus.NOT_FOUND.value(),
+                        BASE_PROBLEM_URI + "resource-not-found",
+                        "Ресурс не найден",
+                        ex.getMessage(),
+                        req.getRequestURI(),
+                        Instant.now(),
+                        null
+                ));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex,
                                                           HttpServletRequest req) {
@@ -70,7 +89,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAll(Exception ex, HttpServletRequest req) {
-        // Место для логирования: log.error("Unexpected error", ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(

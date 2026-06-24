@@ -43,7 +43,6 @@ public class RideCreatedListener {
             JsonNode metaNode = root.get("eventMetadata");
             EventMetadata metadata = jsonMapper.treeToValue(metaNode, EventMetadata.class);
             String correlationId = metadata.correlationId();
-
             MDC.put(CORRELATION_ID_KEY, correlationId);
 
             JsonNode payloadNode = root.get("payload");
