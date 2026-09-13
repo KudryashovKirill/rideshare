@@ -14,6 +14,8 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 public class BookingController implements BookingApi {
     private final BookingService bookingService;
@@ -41,7 +43,7 @@ public class BookingController implements BookingApi {
     }
 
     @Override
-    public EntityModel<BookingResponse> getBookingById(Long id) {
+    public EntityModel<BookingResponse> getBookingById(UUID id) {
         return bookingModelAssembler.toModel(bookingService.getBookingById(id));
     }
 
@@ -55,22 +57,22 @@ public class BookingController implements BookingApi {
     }
 
     @Override
-    public EntityModel<BookingResponse> updateBooking(Long id, UpdateBookingRequest request) {
+    public EntityModel<BookingResponse> updateBooking(UUID id, UpdateBookingRequest request) {
         return bookingModelAssembler.toModel(bookingService.updateBooking(id, request));
     }
 
     @Override
-    public EntityModel<BookingResponse> patchBooking(Long id, PatchBookingRequest request) {
+    public EntityModel<BookingResponse> patchBooking(UUID id, PatchBookingRequest request) {
         return bookingModelAssembler.toModel(bookingService.patchBooking(id, request));
     }
 
     @Override
-    public EntityModel<BookingResponse> patchBookingStatus(Long id, BookingStatus status) {
+    public EntityModel<BookingResponse> patchBookingStatus(UUID id, BookingStatus status) {
         return bookingModelAssembler.toModel(bookingService.patchBookingStatus(id, status));
     }
 
     @Override
-    public void deleteBooking(Long id) {
+    public void deleteBooking(UUID id) {
         bookingService.delete(id);
     }
 }

@@ -18,6 +18,8 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 public class UserController implements UserApi {
     private final UserService userService;
@@ -63,7 +65,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public EntityModel<UserResponse> getUserById(Long id) {
+    public EntityModel<UserResponse> getUserById(UUID id) {
         return userModelAssembler.toModel(userService.getUserById(id));
     }
 
@@ -77,22 +79,22 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public EntityModel<UserResponse> updateUser(Long id, UserRequest request) {
+    public EntityModel<UserResponse> updateUser(UUID id, UserRequest request) {
         return userModelAssembler.toModel(userService.updateUser(id, request));
     }
 
     @Override
-    public EntityModel<UserResponse> patchUser(Long id, PatchUserRequest request) {
+    public EntityModel<UserResponse> patchUser(UUID id, PatchUserRequest request) {
         return userModelAssembler.toModel(userService.patchUser(id, request));
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public void deleteUser(UUID id) {
         userService.delete(id);
     }
 
     @Override
-    public PagedModel<EntityModel<RideResponse>> getRidesByDriver(Long id, int page, int size) {
+    public PagedModel<EntityModel<RideResponse>> getRidesByDriver(UUID id, int page, int size) {
         userService.getUserById(id);
         PagedResponse<RideResponse> paged = userService.getRidesByDriver(id, page, size);
         Page<RideResponse> springPage = new PageImpl<>(
@@ -104,7 +106,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public PagedModel<EntityModel<RideResponse>> getRidesAsPassenger(Long id, int page, int size) {
+    public PagedModel<EntityModel<RideResponse>> getRidesAsPassenger(UUID id, int page, int size) {
         userService.getUserById(id);
         PagedResponse<RideResponse> paged = userService.getRidesAsPassenger(id, page, size);
         Page<RideResponse> springPage = new PageImpl<>(
@@ -116,7 +118,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public PagedModel<EntityModel<BookingResponse>> getAllBookingsByUserId(Long id, int page, int size) {
+    public PagedModel<EntityModel<BookingResponse>> getAllBookingsByUserId(UUID id, int page, int size) {
         userService.getUserById(id);
         PagedResponse<BookingResponse> paged = userService.getAllBookingsByUserId(id, page, size);
         Page<BookingResponse> springPage = new PageImpl<>(

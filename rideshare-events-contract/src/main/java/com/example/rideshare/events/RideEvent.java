@@ -1,11 +1,12 @@
 package com.example.rideshare.events;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public sealed interface RideEvent {
     record Created(
-            Long id,
-            Long driverId,
+            UUID id,
+            UUID driverId,
             String departureCity,
             String arrivalCity,
             LocalDateTime departureTime,
@@ -18,7 +19,7 @@ public sealed interface RideEvent {
     }
 
     record Updated(
-            Long id,
+            UUID id,
             String departureCity,
             String arrivalCity,
             LocalDateTime departureTime,
@@ -31,8 +32,8 @@ public sealed interface RideEvent {
     }
 
     record Deleted(
-            Long id,
-            Long driverId,
+            UUID id,
+            UUID driverId,
             String departureCity,
             String arrivalCity,
             LocalDateTime departureTime,
@@ -41,7 +42,7 @@ public sealed interface RideEvent {
     }
 
     record Enriched(
-            Long rideId,
+            UUID rideId,
             Integer estimatedDistanceKm,
             Integer recommendedPrice,
             String priceDeviation,

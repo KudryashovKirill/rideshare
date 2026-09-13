@@ -178,12 +178,16 @@
 			<version>4.0.15</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- Source: https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>42.7.11</version>
-			<scope>compile</scope>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-postgresql</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -236,6 +240,22 @@
 					<reportVersion>2.24.0</reportVersion>
 					<resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<configuration>
+					<url>jdbc:postgresql://localhost:5432/rideshare</url>
+					<user>postgres</user>
+					<password>postgres</password>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.flywaydb</groupId>
+						<artifactId>flyway-database-postgresql</artifactId>
+						<version>${flyway.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 

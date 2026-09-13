@@ -1,8 +1,10 @@
 package com.example.rideshare.events;
 
+import java.util.UUID;
+
 public sealed interface BookingEvent {
     record Created(
-            Long id,
+            UUID id,
             String rideId,
             String passengerId,
             String status,
@@ -11,14 +13,14 @@ public sealed interface BookingEvent {
     }
 
     record Updated(
-            Long id,
+            UUID id,
             String status,
             Integer requestedSeats
     ) implements BookingEvent {
     }
 
     record Deleted(
-            Long id,
+            UUID id,
             String status
     ) implements BookingEvent {
     }

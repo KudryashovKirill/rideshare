@@ -1,10 +1,11 @@
 package com.example.rideshare.events;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public sealed interface UserEvent {
     record Created(
-            Long id,
+            UUID id,
             String firstName,
             String lastName,
             String fullName,
@@ -14,7 +15,7 @@ public sealed interface UserEvent {
     }
 
     record Updated(
-            Long id,
+            UUID id,
             String firstName,
             String lastName,
             String email,
@@ -23,7 +24,7 @@ public sealed interface UserEvent {
     }
 
     record Deleted(
-            Long id,
+            UUID id,
             String firstName,
             String lastName,
             String email,

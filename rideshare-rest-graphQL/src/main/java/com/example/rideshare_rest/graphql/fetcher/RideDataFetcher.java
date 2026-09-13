@@ -12,6 +12,8 @@ import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.UUID;
+
 /**
  * DataFetcher для операций с поездками.
  * <p>
@@ -36,7 +38,7 @@ public class RideDataFetcher {
      */
     @DgsQuery
     public RideResponse ride(@InputArgument String id) {
-        return rideService.getRideById(Long.parseLong(id));
+        return rideService.getRideById(UUID.fromString(id));
     }
 
     /**
@@ -54,13 +56,13 @@ public class RideDataFetcher {
         int pageNum = page != null ? page : 0;
         int pageSize = size != null ? size : 20;
 
-        Long driverId = null;
+        UUID driverId = null;
         String departureCity = null;
         String arrivalCity = null;
         Integer freeSeats = null;
 
         if (filter != null) {
-            driverId = filter.driverId() != null ? Long.parseLong(filter.driverId()) : null;
+            driverId = filter.driverId() != null ? UUID.fromString(filter.driverId()) : null;
             departureCity = filter.departureCity() != null ? filter.departureCity() : null;
             arrivalCity = filter.arrivalCity() != null ? filter.arrivalCity() : null;
             freeSeats = filter.freeSeats() != null ? filter.freeSeats() : null;
@@ -82,7 +84,7 @@ public class RideDataFetcher {
     @DgsMutation
     public RideResponse createRide(@InputArgument CreateRideInputGql input) {
         RideRequest request = new RideRequest(
-                Long.parseLong(input.driverId()),
+                UUID.fromString(input.driverId()),
                 input.departureCity(),
                 input.arrivalCity(),
                 input.departureTime(),
@@ -111,7 +113,7 @@ public class RideDataFetcher {
                 input.status(),
                 input.price()
         );
-        return rideService.updateRide(Long.parseLong(id), request);
+        return rideService.updateRide(UUID.fromString(id), request);
     }
 
     /**
@@ -121,7 +123,7 @@ public class RideDataFetcher {
      */
     @DgsMutation
     public Boolean deleteRide(@InputArgument String id) {
-        rideService.delete(Long.parseLong(id));
+        rideService.delete(UUID.fromString(id));
         return true;
     }
 }
