@@ -86,11 +86,11 @@ public class RideAnalyticsServiceImpl extends RideAdditionGrpc.RideAdditionImplB
      */
     private String evaluatePriceDeviation(int declared, int recommended) {
         if (declared < recommended * 0.8) {
-            return "UNDERPRICED";
+            return "Уценка";
         } else if (declared > recommended * 1.25) {
-            return "OVERPRICED";
+            return "Переплата";
         }
-        return "OPTIMAL";
+        return "Оптимально";
     }
 
     /**
@@ -98,12 +98,12 @@ public class RideAnalyticsServiceImpl extends RideAdditionGrpc.RideAdditionImplB
      */
     private String evaluateRouteDifficulty(int distanceKm, String departureCity) {
         if (distanceKm > 400) {
-            return "HIGHWAY";
+            return "Трудно";
         }
         if (!departureCity.toLowerCase().contains("москва") ||
                 !departureCity.toLowerCase().contains("санкт-петербург")) {
-            return "BAD_ROADS";
+            return "Плохие дороги";
         }
-        return "EASY";
+        return "Легко";
     }
 }

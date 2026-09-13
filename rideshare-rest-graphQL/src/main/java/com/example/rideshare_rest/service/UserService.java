@@ -2,28 +2,54 @@ package com.example.rideshare_rest.service;
 
 import com.example.rideshare_api_contract.dto.*;
 import com.example.rideshare_api_contract.exceptions.ResourceNotFoundException;
+import com.example.rideshare_rest.entity.UserEntity;
 import com.example.rideshare_rest.event.UserEventPublisher;
-import com.example.rideshare_rest.storage.InMemoryStorage;
+import com.example.rideshare_rest.mapper.BookingMapper;
+import com.example.rideshare_rest.mapper.RideMapper;
+import com.example.rideshare_rest.mapper.UserMapper;
+import com.example.rideshare_rest.storage.BookingRepository;
+import com.example.rideshare_rest.storage.RideRepository;
+import com.example.rideshare_rest.storage.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional
 public class UserService {
-    private final InMemoryStorage storage;
+
+    private final UserRepository userRepository;
+    private final RideRepository rideRepository;
+    private final BookingRepository bookingRepository;
+    private final UserMapper userMapper;
+    private final RideMapper rideMapper;
+    private final BookingMapper bookingMapper;
     private final UserEventPublisher eventPublisher;
 
     @Autowired
-    public UserService(InMemoryStorage storage, UserEventPublisher eventPublisher) {
-        this.storage = storage;
+    public UserService(UserRepository userRepository,
+                       RideRepository rideRepository,
+                       BookingRepository bookingRepository,
+                       UserMapper userMapper,
+                       RideMapper rideMapper,
+                       BookingMapper bookingMapper,
+                       UserEventPublisher eventPublisher) {
+        this.userRepository = userRepository;
+        this.rideRepository = rideRepository;
+        this.bookingRepository = bookingRepository;
+        this.userMapper = userMapper;
+        this.rideMapper = rideMapper;
+        this.bookingMapper = bookingMapper;
         this.eventPublisher = eventPublisher;
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<UserResponse> getAllUsers(int page, int size) {
-        List<UserResponse> all = storage.users.values().stream()
+        List<UserResponse> all = userRepository.findAll().stream()
+                .map(userMapper::toResponse)
                 .sorted(Comparator.comparingLong(UserResponse::getId))
                 .toList();
         int totalElements = all.size();
@@ -34,67 +60,54 @@ public class UserService {
         return new PagedResponse<>(content, page, size, totalElements, totalPages, page >= totalPages - 1);
     }
 
+    @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
-        return Optional.ofNullable(storage.users.get(id))
+        return userRepository.findById(id)
+                .map(userMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 
     public UserResponse create(UserRequest request) {
-        long id = storage.userSequence.incrementAndGet();
-        String fullName = request.firstName() + " " + request.lastName();
-        UserResponse user = UserResponse.builder()
-                .id(id)
-                .firstName(request.firstName())
-                .lastName(request.lastName())
-                .fullName(fullName)
-                .email(request.email())
-                .birthDate(request.birthDate())
-                .build();
-        storage.users.put(id, user);
+        UserEntity entity = userMapper.toEntity(request);
+        UserEntity savedEntity = userRepository.save(entity);
+
+        UserResponse user = userMapper.toResponse(savedEntity);
         eventPublisher.publishCreated(user);
         return user;
     }
 
     public UserResponse updateUser(Long id, UserRequest request) {
-        UserResponse existing = getUserById(id);
-        String fullName = request.firstName() + " " + request.lastName();
-        UserResponse user = UserResponse.builder()
-                .id(id)
-                .firstName(request.firstName())
-                .lastName(request.lastName())
-                .fullName(fullName)
-                .email(request.email())
-                .birthDate(request.birthDate())
-                .build();
-        storage.users.put(id, user);
+        UserEntity existingEntity = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
+
+        userMapper.updateEntityFromRequest(request, existingEntity);
+        UserEntity savedEntity = userRepository.save(existingEntity);
+
+        UserResponse user = userMapper.toResponse(savedEntity);
         eventPublisher.publishUpdated(user);
         return user;
     }
 
     public UserResponse patchUser(Long id, PatchUserRequest request) {
-        UserResponse existing = getUserById(id);
-        String newFirstName = request.firstName() != null ? request.firstName() : existing.getFirstName();
-        String newLastName = request.lastName() != null ? request.lastName() : existing.getLastName();
-        UserResponse updated = UserResponse.builder()
-                .id(id)
-                .firstName(newFirstName)
-                .lastName(newLastName)
-                .fullName(newFirstName + " " + newLastName)
-                .email(request.email() != null ? request.email() : existing.getEmail())
-                .birthDate(request.birthDate() != null ? request.birthDate() : existing.getBirthDate())
-                .build();
-        storage.users.put(id, updated);
-        return updated;
+        UserEntity existingEntity = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
+
+        userMapper.updateEntityFromPatch(request, existingEntity);
+        UserEntity savedEntity = userRepository.save(existingEntity);
+
+        return userMapper.toResponse(savedEntity);
     }
 
     public void delete(Long id) {
         UserResponse userResponse = getUserById(id);
-        storage.users.remove(id);
+        userRepository.deleteById(id);
         eventPublisher.publishDeleted(userResponse);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<RideResponse> getRidesByDriver(Long id, int page, int size) {
-        List<RideResponse> response = storage.rides.values().stream()
+        List<RideResponse> response = rideRepository.findAll().stream()
+                .map(rideMapper::toResponse)
                 .filter(rideResponse -> rideResponse.getDriver().getId().equals(id))
                 .toList();
         int totalElements = response.size();
@@ -105,8 +118,10 @@ public class UserService {
         return new PagedResponse<>(content, page, size, totalElements, totalPages, page >= totalPages - 1);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<RideResponse> getRidesAsPassenger(Long id, int page, int size) {
-        List<RideResponse> response = storage.bookings.values().stream()
+        List<RideResponse> response = bookingRepository.findAll().stream()
+                .map(bookingMapper::toResponse)
                 .filter(bookingResponse -> bookingResponse.getPassenger() != null
                         && bookingResponse.getPassenger().getId().equals(id))
                 .map(BookingResponse::getRide)
@@ -120,8 +135,10 @@ public class UserService {
         return new PagedResponse<>(content, page, size, totalElements, totalPages, page >= totalPages - 1);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<BookingResponse> getAllBookingsByUserId(Long id, int page, int size) {
-        List<BookingResponse> response = storage.bookings.values().stream()
+        List<BookingResponse> response = bookingRepository.findAll().stream()
+                .map(bookingMapper::toResponse)
                 .filter(bookingResponse -> bookingResponse.getPassenger().getId().equals(id))
                 .toList();
         int totalElements = response.size();
@@ -131,5 +148,4 @@ public class UserService {
         List<BookingResponse> content = (from >= totalElements) ? List.of() : response.subList(from, to);
         return new PagedResponse<>(content, page, size, totalElements, totalPages, page >= totalPages - 1);
     }
-
 }
