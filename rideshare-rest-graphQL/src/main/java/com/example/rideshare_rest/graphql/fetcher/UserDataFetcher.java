@@ -14,6 +14,8 @@ import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.UUID;
+
 /**
  * DataFetcher для операций с пользователями.
  * <p>
@@ -38,7 +40,7 @@ public class UserDataFetcher {
      */
     @DgsQuery
     public UserResponse user(@InputArgument String id) {
-        return userService.getUserById(Long.parseLong(id));
+        return userService.getUserById(UUID.fromString(id));
     }
 
     /**
@@ -88,7 +90,7 @@ public class UserDataFetcher {
                 input.email(),
                 input.birthDate()
         );
-        return userService.updateUser(Long.parseLong(id), request);
+        return userService.updateUser(UUID.fromString(id), request);
     }
 
     /**
@@ -97,7 +99,7 @@ public class UserDataFetcher {
      */
     @DgsMutation
     public boolean deleteUser(@InputArgument String id) {
-        userService.delete(Long.parseLong(id));
+        userService.delete(UUID.fromString(id));
         return true;
     }
 }

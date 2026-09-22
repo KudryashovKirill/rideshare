@@ -15,6 +15,8 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 public class RideController implements RideApi {
     private final RideService rideService;
@@ -37,7 +39,7 @@ public class RideController implements RideApi {
     }
 
     @Override
-    public PagedModel<EntityModel<RideResponse>> getAllRides(Long driverId, String departureCity, String arrivalCity,
+    public PagedModel<EntityModel<RideResponse>> getAllRides(UUID driverId, String departureCity, String arrivalCity,
                                                              Integer freeSeats, int page, int size) {
         PagedResponse<RideResponse> paged = rideService.getAllRides(driverId, departureCity, arrivalCity,
                 freeSeats, page, size);
@@ -50,7 +52,7 @@ public class RideController implements RideApi {
     }
 
     @Override
-    public EntityModel<RideResponse> getRideById(Long id) {
+    public EntityModel<RideResponse> getRideById(UUID id) {
         return rideModelAssembler.toModel(rideService.getRideById(id));
     }
 
@@ -64,27 +66,27 @@ public class RideController implements RideApi {
     }
 
     @Override
-    public EntityModel<RideResponse> updateRide(Long id, UpdateRideRequest request) {
+    public EntityModel<RideResponse> updateRide(UUID id, UpdateRideRequest request) {
         return rideModelAssembler.toModel(rideService.updateRide(id, request));
     }
 
     @Override
-    public EntityModel<RideResponse> patchRide(Long id, PatchRideRequest request) {
+    public EntityModel<RideResponse> patchRide(UUID id, PatchRideRequest request) {
         return rideModelAssembler.toModel(rideService.patchRide(id, request));
     }
 
     @Override
-    public EntityModel<RideResponse> patchRideStatus(Long id, RideStatus status) {
+    public EntityModel<RideResponse> patchRideStatus(UUID id, RideStatus status) {
         return rideModelAssembler.toModel(rideService.patchRideStatus(id, status));
     }
 
     @Override
-    public void deleteRide(Long id) {
+    public void deleteRide(UUID id) {
         rideService.delete(id);
     }
 
     @Override
-    public PagedModel<EntityModel<BookingResponse>> getAllBookingsByRideId(Long rideId, int page, int size) {
+    public PagedModel<EntityModel<BookingResponse>> getAllBookingsByRideId(UUID rideId, int page, int size) {
         PagedResponse<BookingResponse> paged = rideService.getAllBookingsByRideId(rideId, page, size);
         Page<BookingResponse> springPage = new PageImpl<>(
                 paged.content(),

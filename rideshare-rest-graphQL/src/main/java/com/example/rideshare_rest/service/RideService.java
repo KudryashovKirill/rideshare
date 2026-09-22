@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -48,11 +49,10 @@ public class RideService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<RideResponse> getAllRides(Long driverId, String departureCity, String arrivalCity,
+    public PagedResponse<RideResponse> getAllRides(UUID driverId, String departureCity, String arrivalCity,
                                                    Integer freeSeats, int page, int size) {
         Stream<RideResponse> stream = rideRepository.findAll().stream()
-                .map(rideMapper::toResponse)
-                .sorted((r1, r2) -> r1.getId().compareTo(r2.getId()));
+                .map(rideMapper::toResponse);
 
         if (driverId != null) {
             stream = stream.filter(rideResponse -> rideResponse.getDriver().getId().equals(driverId));
@@ -77,7 +77,7 @@ public class RideService {
     }
 
     @Transactional(readOnly = true)
-    public RideResponse getRideById(Long id) {
+    public RideResponse getRideById(UUID id) {
         return rideRepository.findById(id)
                 .map(rideMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Ride", id));
@@ -96,7 +96,7 @@ public class RideService {
         return ride;
     }
 
-    public RideResponse updateRide(Long id, UpdateRideRequest request) {
+    public RideResponse updateRide(UUID id, UpdateRideRequest request) {
         RideEntity existingEntity = rideRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ride", id));
 
@@ -108,7 +108,7 @@ public class RideService {
         return updatedRide;
     }
 
-    public RideResponse patchRide(Long id, PatchRideRequest request) {
+    public RideResponse patchRide(UUID id, PatchRideRequest request) {
         RideEntity existingEntity = rideRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ride", id));
 
@@ -118,7 +118,7 @@ public class RideService {
         return rideMapper.toResponse(savedEntity);
     }
 
-    public RideResponse patchRideStatus(Long id, RideStatus status) {
+    public RideResponse patchRideStatus(UUID id, RideStatus status) {
         RideEntity existingEntity = rideRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ride", id));
 
@@ -130,14 +130,14 @@ public class RideService {
         return rideMapper.toResponse(savedEntity);
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
         RideResponse rideResponse = getRideById(id);
         rideRepository.deleteById(id);
         eventPublisher.publishDeleted(rideResponse);
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<BookingResponse> getAllBookingsByRideId(Long id, int page, int size) {
+    public PagedResponse<BookingResponse> getAllBookingsByRideId(UUID id, int page, int size) {
         List<BookingResponse> all = bookingRepository.findAll().stream()
                 .map(bookingMapper::toResponse)
                 .filter(booking -> Objects.equals(booking.getRide().getId(), id))

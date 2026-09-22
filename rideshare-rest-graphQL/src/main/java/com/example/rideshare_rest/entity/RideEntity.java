@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "rides")
@@ -15,8 +16,8 @@ import java.time.LocalDateTime;
 @Builder
 public class RideEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "driver_id", nullable = false)
@@ -30,6 +31,9 @@ public class RideEntity {
     private Integer totalSeats;
     private Integer freeSeats;
     private Integer price;
+
+    @Version
+    private Integer version;
 
     @Enumerated(EnumType.STRING)
     private RideStatus status;

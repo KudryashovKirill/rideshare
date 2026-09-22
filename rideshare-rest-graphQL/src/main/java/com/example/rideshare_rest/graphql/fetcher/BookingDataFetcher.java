@@ -9,6 +9,8 @@ import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.UUID;
+
 @DgsComponent
 public class BookingDataFetcher {
     private final BookingService bookingService;
@@ -25,7 +27,7 @@ public class BookingDataFetcher {
      */
     @DgsQuery
     public BookingResponse booking(@InputArgument String id) {
-        return bookingService.getBookingById(Long.parseLong(id));
+        return bookingService.getBookingById(UUID.fromString(id));
     }
 
     /**
@@ -65,8 +67,8 @@ public class BookingDataFetcher {
     @DgsMutation
     public BookingResponse createBooking(@InputArgument CreateBookingInputGql input) {
         BookingRequest request = new BookingRequest(
-                Long.parseLong(input.rideId()),
-                Long.parseLong(input.passengerId()),
+                UUID.fromString(input.rideId()),
+                UUID.fromString(input.passengerId()),
                 input.status(),
                 input.requestedSeats()
         );
@@ -83,7 +85,7 @@ public class BookingDataFetcher {
                 input.status(),
                 input.requestedSeats()
         );
-        return bookingService.updateBooking(Long.parseLong(id), request);
+        return bookingService.updateBooking(UUID.fromString(id), request);
     }
 
     /**
@@ -93,7 +95,7 @@ public class BookingDataFetcher {
      */
     @DgsMutation
     public Boolean deleteBooking(@InputArgument String id) {
-        bookingService.delete(Long.parseLong(id));
+        bookingService.delete(UUID.fromString(id));
         return true;
     }
 }

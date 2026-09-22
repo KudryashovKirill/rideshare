@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -50,7 +51,6 @@ public class UserService {
     public PagedResponse<UserResponse> getAllUsers(int page, int size) {
         List<UserResponse> all = userRepository.findAll().stream()
                 .map(userMapper::toResponse)
-                .sorted(Comparator.comparingLong(UserResponse::getId))
                 .toList();
         int totalElements = all.size();
         int totalPages = size > 0 ? (int) Math.ceil((double) totalElements / size) : 1;
@@ -61,7 +61,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse getUserById(Long id) {
+    public UserResponse getUserById(UUID id) {
         return userRepository.findById(id)
                 .map(userMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
@@ -76,7 +76,7 @@ public class UserService {
         return user;
     }
 
-    public UserResponse updateUser(Long id, UserRequest request) {
+    public UserResponse updateUser(UUID id, UserRequest request) {
         UserEntity existingEntity = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
 
@@ -88,7 +88,7 @@ public class UserService {
         return user;
     }
 
-    public UserResponse patchUser(Long id, PatchUserRequest request) {
+    public UserResponse patchUser(UUID id, PatchUserRequest request) {
         UserEntity existingEntity = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
 
@@ -98,14 +98,14 @@ public class UserService {
         return userMapper.toResponse(savedEntity);
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
         UserResponse userResponse = getUserById(id);
         userRepository.deleteById(id);
         eventPublisher.publishDeleted(userResponse);
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<RideResponse> getRidesByDriver(Long id, int page, int size) {
+    public PagedResponse<RideResponse> getRidesByDriver(UUID id, int page, int size) {
         List<RideResponse> response = rideRepository.findAll().stream()
                 .map(rideMapper::toResponse)
                 .filter(rideResponse -> rideResponse.getDriver().getId().equals(id))
@@ -119,7 +119,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<RideResponse> getRidesAsPassenger(Long id, int page, int size) {
+    public PagedResponse<RideResponse> getRidesAsPassenger(UUID id, int page, int size) {
         List<RideResponse> response = bookingRepository.findAll().stream()
                 .map(bookingMapper::toResponse)
                 .filter(bookingResponse -> bookingResponse.getPassenger() != null
@@ -136,7 +136,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<BookingResponse> getAllBookingsByUserId(Long id, int page, int size) {
+    public PagedResponse<BookingResponse> getAllBookingsByUserId(UUID id, int page, int size) {
         List<BookingResponse> response = bookingRepository.findAll().stream()
                 .map(bookingMapper::toResponse)
                 .filter(bookingResponse -> bookingResponse.getPassenger().getId().equals(id))

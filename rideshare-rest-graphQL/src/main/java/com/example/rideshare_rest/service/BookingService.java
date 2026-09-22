@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -68,7 +69,7 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
-    public BookingResponse getBookingById(Long id) {
+    public BookingResponse getBookingById(UUID id) {
         return bookingRepository.findById(id)
                 .map(bookingMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", id));
@@ -122,7 +123,7 @@ public class BookingService {
         return booking;
     }
 
-    public BookingResponse updateBooking(Long id, UpdateBookingRequest request) {
+    public BookingResponse updateBooking(UUID id, UpdateBookingRequest request) {
         BookingResponse existing = getBookingById(id);
         RideResponse currentRide = rideService.getRideById(existing.getRide().getId());
 
@@ -158,7 +159,7 @@ public class BookingService {
         return updatedBooking;
     }
 
-    public BookingResponse patchBooking(Long id, PatchBookingRequest request) {
+    public BookingResponse patchBooking(UUID id, PatchBookingRequest request) {
         BookingResponse existing = getBookingById(id);
         RideResponse currentRide = rideService.getRideById(existing.getRide().getId());
 
@@ -196,7 +197,7 @@ public class BookingService {
         return bookingMapper.toResponse(savedBooking);
     }
 
-    public BookingResponse patchBookingStatus(Long id, BookingStatus status) {
+    public BookingResponse patchBookingStatus(UUID id, BookingStatus status) {
         BookingResponse existing = getBookingById(id);
         if (status == null || status.equals(existing.getStatus())) {
             return existing;
@@ -224,7 +225,7 @@ public class BookingService {
         return bookingMapper.toResponse(savedBooking);
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
         BookingResponse existing = getBookingById(id);
         if (existing.getStatus() != BookingStatus.REJECTED) {
             RideResponse ride = rideService.getRideById(existing.getRide().getId());
