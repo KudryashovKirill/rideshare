@@ -16,6 +16,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -23,8 +24,6 @@ import java.util.UUID;
 @RestController
 public class UserController implements UserApi {
     private final UserService userService;
-    private final RideService rideService;
-    private final BookingService bookingService;
     private final UserModelAssembler userModelAssembler;
     private final RideModelAssembler rideModelAssembler;
     private final BookingModelAssembler bookingModelAssembler;
@@ -34,8 +33,6 @@ public class UserController implements UserApi {
 
     @Autowired
     public UserController(UserService userService,
-                          RideService rideService,
-                          BookingService bookingService,
                           UserModelAssembler userModelAssembler,
                           RideModelAssembler rideModelAssembler,
                           BookingModelAssembler bookingModelAssembler,
@@ -43,8 +40,6 @@ public class UserController implements UserApi {
                           PagedResourcesAssembler<RideResponse> pagedResourcesRideAssembler,
                           PagedResourcesAssembler<BookingResponse> pagedResourcesBookingAssembler) {
         this.userService = userService;
-        this.rideService = rideService;
-        this.bookingService = bookingService;
         this.userModelAssembler = userModelAssembler;
         this.rideModelAssembler = rideModelAssembler;
         this.bookingModelAssembler = bookingModelAssembler;
@@ -54,6 +49,7 @@ public class UserController implements UserApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('OPERATOR')")
     public PagedModel<EntityModel<UserResponse>> getAllUsers(int page, int size) {
         PagedResponse<UserResponse> paged = userService.getAllUsers(page, size);
         Page<UserResponse> springPage = new PageImpl<>(
@@ -65,11 +61,13 @@ public class UserController implements UserApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
     public EntityModel<UserResponse> getUserById(UUID id) {
         return userModelAssembler.toModel(userService.getUserById(id));
     }
 
     @Override
+    @PreAuthorize("hasRole('OPERATOR')")
     public ResponseEntity<EntityModel<UserResponse>> createUser(UserRequest request) {
         UserResponse created = userService.create(request);
         EntityModel<UserResponse> model = userModelAssembler.toModel(created);
@@ -79,21 +77,25 @@ public class UserController implements UserApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('OPERATOR')")
     public EntityModel<UserResponse> updateUser(UUID id, UserRequest request) {
         return userModelAssembler.toModel(userService.updateUser(id, request));
     }
 
     @Override
+    @PreAuthorize("hasRole('OPERATOR')")
     public EntityModel<UserResponse> patchUser(UUID id, PatchUserRequest request) {
         return userModelAssembler.toModel(userService.patchUser(id, request));
     }
 
     @Override
+    @PreAuthorize("hasRole('OPERATOR')")
     public void deleteUser(UUID id) {
         userService.delete(id);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
     public PagedModel<EntityModel<RideResponse>> getRidesByDriver(UUID id, int page, int size) {
         userService.getUserById(id);
         PagedResponse<RideResponse> paged = userService.getRidesByDriver(id, page, size);
@@ -106,6 +108,7 @@ public class UserController implements UserApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
     public PagedModel<EntityModel<RideResponse>> getRidesAsPassenger(UUID id, int page, int size) {
         userService.getUserById(id);
         PagedResponse<RideResponse> paged = userService.getRidesAsPassenger(id, page, size);
@@ -118,6 +121,7 @@ public class UserController implements UserApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
     public PagedModel<EntityModel<BookingResponse>> getAllBookingsByUserId(UUID id, int page, int size) {
         userService.getUserById(id);
         PagedResponse<BookingResponse> paged = userService.getAllBookingsByUserId(id, page, size);

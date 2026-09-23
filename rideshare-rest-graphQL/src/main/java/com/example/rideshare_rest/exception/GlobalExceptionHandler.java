@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import org.springframework.security.access.AccessDeniedException;
 import java.time.Instant;
 import java.util.List;
 
@@ -97,6 +98,24 @@ public class GlobalExceptionHandler {
                         "Внутренняя ошибка сервера",
                         "Произошла непредвиденная ошибка. Обратитесь к поддержке.",
                         req.getRequestURI(),
+                        Instant.now(),
+                        null
+                ));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(
+            AccessDeniedException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(
+                        HttpStatus.FORBIDDEN.value(),
+                        BASE_PROBLEM_URI + "acces-error",
+                        "Ошибка доступа к ресурсу",
+                        "Произошла ошибка доступа к ресурсу",
+                        request.getRequestURI(),
                         Instant.now(),
                         null
                 ));

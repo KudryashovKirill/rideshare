@@ -13,6 +13,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -39,6 +40,7 @@ public class RideController implements RideApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
     public PagedModel<EntityModel<RideResponse>> getAllRides(UUID driverId, String departureCity, String arrivalCity,
                                                              Integer freeSeats, int page, int size) {
         PagedResponse<RideResponse> paged = rideService.getAllRides(driverId, departureCity, arrivalCity,
@@ -52,11 +54,13 @@ public class RideController implements RideApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
     public EntityModel<RideResponse> getRideById(UUID id) {
         return rideModelAssembler.toModel(rideService.getRideById(id));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('EDITOR', 'OPERATOR')")
     public ResponseEntity<EntityModel<RideResponse>> createRide(RideRequest request) {
         RideResponse created = rideService.create(request);
         EntityModel<RideResponse> model = rideModelAssembler.toModel(created);
@@ -66,26 +70,31 @@ public class RideController implements RideApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('EDITOR', 'OPERATOR')")
     public EntityModel<RideResponse> updateRide(UUID id, UpdateRideRequest request) {
         return rideModelAssembler.toModel(rideService.updateRide(id, request));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('EDITOR', 'OPERATOR')")
     public EntityModel<RideResponse> patchRide(UUID id, PatchRideRequest request) {
         return rideModelAssembler.toModel(rideService.patchRide(id, request));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('EDITOR', 'OPERATOR')")
     public EntityModel<RideResponse> patchRideStatus(UUID id, RideStatus status) {
         return rideModelAssembler.toModel(rideService.patchRideStatus(id, status));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('EDITOR', 'OPERATOR')")
     public void deleteRide(UUID id) {
         rideService.delete(id);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('EDITOR', 'OPERATOR')")
     public PagedModel<EntityModel<BookingResponse>> getAllBookingsByRideId(UUID rideId, int page, int size) {
         PagedResponse<BookingResponse> paged = rideService.getAllBookingsByRideId(rideId, page, size);
         Page<BookingResponse> springPage = new PageImpl<>(

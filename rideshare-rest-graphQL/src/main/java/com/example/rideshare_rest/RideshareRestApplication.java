@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication
 @EnableHypermediaSupport(type = EnableHypermediaSupport.HypermediaType.HAL)
 public class RideshareRestApplication {
 

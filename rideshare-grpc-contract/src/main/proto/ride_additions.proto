@@ -10,7 +10,7 @@ service RideAddition {
 }
 
 message AnalyzeRideRequest {
-    int64  ride_id        = 1;
+    string  ride_id        = 1;
     string departure_city = 2;
     string arrival_city   = 3;
     int32  price_declared = 4;
@@ -19,7 +19,7 @@ message AnalyzeRideRequest {
 }
 
 message RideAnalysisResponse {
-    int64  ride_id               = 1;
+    string  ride_id               = 1;
     int32  estimated_distance_km = 2;
     int32  recommended_price     = 3;
     string price_deviation       = 4;

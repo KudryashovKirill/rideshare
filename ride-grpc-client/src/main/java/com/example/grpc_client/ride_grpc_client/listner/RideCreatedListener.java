@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.util.UUID;
+
 @Component
 public class RideCreatedListener {
 
@@ -51,7 +53,7 @@ public class RideCreatedListener {
             log.info("Получено событие ride.created для поездки ID={}", rideCreated.id());
 
             AnalyzeRideRequest grpcRequest = AnalyzeRideRequest.newBuilder()
-                    .setRideId(rideCreated.id())
+                    .setRideId(String.valueOf(rideCreated.id()))
                     .setDepartureCity(rideCreated.departureCity())
                     .setArrivalCity(rideCreated.arrivalCity())
                     .setPriceDeclared(rideCreated.price())
@@ -65,7 +67,7 @@ public class RideCreatedListener {
             log.info("gRPC ответ получен успешно");
 
             RideEvent.Enriched enrichedEvent = new RideEvent.Enriched(
-                    grpcResponse.getRideId(),
+                    UUID.fromString(grpcResponse.getRideId()),
                     grpcResponse.getEstimatedDistanceKm(),
                     grpcResponse.getRecommendedPrice(),
                     grpcResponse.getPriceDeviation(),

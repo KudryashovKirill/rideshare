@@ -12,6 +12,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -32,6 +33,7 @@ public class BookingController implements BookingApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public PagedModel<EntityModel<BookingResponse>> getAllBookings(BookingStatus status, int page, int size) {
         PagedResponse<BookingResponse> paged = bookingService.getAllBookings(status, page, size);
         Page<BookingResponse> springPage = new PageImpl<>(
@@ -43,11 +45,13 @@ public class BookingController implements BookingApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('PASSENGER', 'DRIVER', 'ADMIN')")
     public EntityModel<BookingResponse> getBookingById(UUID id) {
         return bookingModelAssembler.toModel(bookingService.getBookingById(id));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('PASSENGER', 'ADMIN')")
     public ResponseEntity<EntityModel<BookingResponse>> createBooking(BookingRequest request) {
         BookingResponse created = bookingService.createBooking(request);
         EntityModel<BookingResponse> model = bookingModelAssembler.toModel(created);
@@ -57,21 +61,25 @@ public class BookingController implements BookingApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('PASSENGER', 'ADMIN')")
     public EntityModel<BookingResponse> updateBooking(UUID id, UpdateBookingRequest request) {
         return bookingModelAssembler.toModel(bookingService.updateBooking(id, request));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('PASSENGER', 'ADMIN')")
     public EntityModel<BookingResponse> patchBooking(UUID id, PatchBookingRequest request) {
         return bookingModelAssembler.toModel(bookingService.patchBooking(id, request));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('PASSENGER', 'DRIVER', 'ADMIN')")
     public EntityModel<BookingResponse> patchBookingStatus(UUID id, BookingStatus status) {
         return bookingModelAssembler.toModel(bookingService.patchBookingStatus(id, status));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('PASSENGER', 'ADMIN')")
     public void deleteBooking(UUID id) {
         bookingService.delete(id);
     }
