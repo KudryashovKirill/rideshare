@@ -5,8 +5,6 @@ import com.example.rideshare_api_contract.endpoints.UserApi;
 import com.example.rideshare_rest.assemblers.BookingModelAssembler;
 import com.example.rideshare_rest.assemblers.RideModelAssembler;
 import com.example.rideshare_rest.assemblers.UserModelAssembler;
-import com.example.rideshare_rest.service.BookingService;
-import com.example.rideshare_rest.service.RideService;
 import com.example.rideshare_rest.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -61,7 +59,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
+    @PreAuthorize("hasRole('READER')")
     public EntityModel<UserResponse> getUserById(UUID id) {
         return userModelAssembler.toModel(userService.getUserById(id));
     }
@@ -95,7 +93,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
+    @PreAuthorize("hasRole('READER')")
     public PagedModel<EntityModel<RideResponse>> getRidesByDriver(UUID id, int page, int size) {
         userService.getUserById(id);
         PagedResponse<RideResponse> paged = userService.getRidesByDriver(id, page, size);
@@ -108,7 +106,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
+    @PreAuthorize("hasRole('READER')")
     public PagedModel<EntityModel<RideResponse>> getRidesAsPassenger(UUID id, int page, int size) {
         userService.getUserById(id);
         PagedResponse<RideResponse> paged = userService.getRidesAsPassenger(id, page, size);
@@ -121,7 +119,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('READER', 'EDITOR', 'OPERATOR')")
+    @PreAuthorize("hasRole('READER')")
     public PagedModel<EntityModel<BookingResponse>> getAllBookingsByUserId(UUID id, int page, int size) {
         userService.getUserById(id);
         PagedResponse<BookingResponse> paged = userService.getAllBookingsByUserId(id, page, size);

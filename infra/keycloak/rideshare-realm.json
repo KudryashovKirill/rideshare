@@ -1,0 +1,128 @@
+{
+  "realm": "rideshare",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "accessTokenLifespan": 300,
+  "roles": {
+    "realm": [
+      {
+        "name": "service"
+      },
+      {
+        "name": "auditor"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "rideshare-service-client",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "rideshare-service-secret",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": false,
+      "defaultClientScopes": ["roles"],
+      "protocolMappers": [
+        {
+          "name": "api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "audit-service",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "rideshare-auditor-client",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "rideshare-auditor-secret",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": false,
+      "defaultClientScopes": ["roles"],
+      "protocolMappers": [
+        {
+          "name": "api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "audit-service",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "rideshare-other-client",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "rideshare-other-secret",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": false,
+      "defaultClientScopes": ["roles"],
+      "protocolMappers": [
+        {
+          "name": "api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "other-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "scopeMappings": [
+    {
+      "client": "rideshare-service-client",
+      "roles": ["service"]
+    },
+    {
+      "client": "rideshare-auditor-client",
+      "roles": ["auditor"]
+    },
+    {
+      "client": "rideshare-other-client",
+      "roles": ["service"]
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-rideshare-service-client",
+      "enabled": true,
+      "serviceAccountClientId": "rideshare-service-client",
+      "realmRoles": ["service"]
+    },
+    {
+      "username": "service-account-rideshare-auditor-client",
+      "enabled": true,
+      "serviceAccountClientId": "rideshare-auditor-client",
+      "realmRoles": ["auditor"]
+    },
+    {
+      "username": "service-account-rideshare-other-client",
+      "enabled": true,
+      "serviceAccountClientId": "rideshare-other-client",
+      "realmRoles": ["service"]
+    }
+  ]
+}

@@ -58,6 +58,9 @@ services:
       - "8081:8081"
     environment:
       - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:8085/realms/rideshare
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/rideshare/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES=audit-service
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -99,6 +102,20 @@ services:
         condition: service_healthy
       grpc-server:
         condition: service_started
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: rideshare-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin-dev-only
+    ports:
+      - "8085:8080"
+    volumes:
+      - ./infra/keycloak/rideshare-realm.json:/opt/keycloak/data/import/rideshare-realm.json:ro
+    networks:
+      - default
 
 volumes:
   postgres_data:

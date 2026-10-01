@@ -9,7 +9,6 @@
     <groupId>com.example.rideshare</groupId>
     <name>rideshare-grpc-contract</name>
 
-
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -20,32 +19,24 @@
     </properties>
 
     <dependencies>
-        <!-- gRPC Protobuf — интеграция gRPC с Protocol Buffers для сериализации -->
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
             <version>${grpc.version}</version>
         </dependency>
 
-        <!-- gRPC Stub — базовые классы для клиентских и серверных стабов -->
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
             <version>${grpc.version}</version>
         </dependency>
 
-        <!-- Protobuf Java runtime — сериализация/десериализация proto-сообщений -->
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
         </dependency>
 
-        <!--
-            javax.annotation-api — аннотация @Generated, которую создаёт protoc-gen-grpc-java.
-            gRPC Java (v1.66) генерирует javax.annotation.Generated, а не jakarta.
-            Без этой зависимости сгенерированный код не скомпилируется.
-        -->
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
@@ -55,58 +46,26 @@
     </dependencies>
 
     <build>
-        <!--
-            os-maven-plugin определяет платформу (windows-x86_64, linux-x86_64, osx-aarch_64)
-            для скачивания правильного бинарника protoc и protoc-gen-grpc-java.
-        -->
-        <extensions>
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>1.7.1</version>
-            </extension>
-        </extensions>
-
         <plugins>
-            <!--
-                protobuf-maven-plugin — генерирует Java-код из .proto файлов:
-                1. compile — генерирует классы сообщений (protobuf)
-                2. compile-custom — генерирует gRPC-стабы (сервисные интерфейсы)
-
-                Сгенерированный код попадает в target/generated-sources/protobuf/
-                и автоматически добавляется в classpath при компиляции.
-            -->
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>${protobuf-plugin.version}</version>
                 <configuration>
-                    <!--
-                        protocArtifact — бинарник компилятора protoc.
-                        ${os.detected.classifier} подставляется os-maven-plugin:
-                        windows-x86_64, linux-x86_64, osx-aarch_64 и т.д.
-                    -->
                     <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
-                    <!--
-                        pluginId и pluginArtifact — плагин protoc для генерации gRPC стабов.
-                        Без него protoc создаст только классы сообщений, но не сервисные интерфейсы.
-                    -->
                     <pluginId>grpc-java</pluginId>
                     <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
                 </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <!-- Генерация классов proto-сообщений (Request, Response) -->
                             <goal>compile</goal>
-                            <!-- Генерация gRPC-стабов (BookAnalyticsGrpc с BlockingStub и т.д.) -->
                             <goal>compile-custom</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- Не создаём Spring Boot JAR — это обычная библиотека -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -117,4 +76,20 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- На Apple Silicon macOS x86_64 сборка запускается через нативный транслятор без проблем с правами Unix -->
+        <profile>
+            <id>apple-silicon-override</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <properties>
+                <os.detected.classifier>osx-x86_64</os.detected.classifier>
+            </properties>
+        </profile>
+    </profiles>
 </project>
